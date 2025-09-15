@@ -2,14 +2,21 @@
 
 (2025-09)
 
-Frequency generator.
+Frequency generator. ATmega328/P
+
+
+## Details
 
 Generates square wave with 50% duty cycle.
 
-It's main use is generate 38 kHz for infrared emitter.
+Used to generate 38 kHz for infrared emitter.
 
-Implementation produces perfect timing when frequency is divisor
-of 2000000. Minimum frequency ~ 8 kHz. Maximum frequency 1 MHz.
+Implementation uses pin 3 for output (and counter 3).
+
+Produces perfect timing when frequency is divisor of 2000000.
+
+Minimum frequency ~ 8 kHz. Maximum frequency 1 MHz.
+
 
 ## Code
 
