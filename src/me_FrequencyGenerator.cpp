@@ -36,6 +36,7 @@ TBool me_FrequencyGenerator::SetFrequency_Hz(
 
     It's like floating point numbers: more magnitude - less precision.
   */
+
   const TUint_4 MaxFreq_Hz = (TUint_4) F_CPU / 8 / 2;
   const TUint_4 MinFreq_Hz = (TUint_4) F_CPU / 8 / 255;
   TUint_1 WaveDuration_Ut;
@@ -51,19 +52,12 @@ TBool me_FrequencyGenerator::SetFrequency_Hz(
   if (WaveDuration_Ut < 2)
     return false;
 
-  StopFreqGen();
+  Counter.Control->Speed = (TUint_1) me_Counters::TSpeed_Counter3::None;
+  Counter.Control->PinActionOnMarkA = (TUint_1) me_Counters::TPinAction::None;
 
-  {
-    using namespace me_Counters;
-
-    Counter.SetAlgorithm(TAlgorithm_Counter3::FastPwm_ToMarkA);
-
-    *Counter.MarkA = WaveDuration_Ut - 1;
-    Counter.Control->PinActionOnMarkA = (TUint_1) TPinAction::None;
-
-    *Counter.MarkB = (WaveDuration_Ut - 1) / 2;
-    Counter.Control->PinActionOnMarkB = (TUint_1) TPinAction::Set;
-  }
+  Counter.SetAlgorithm(me_Counters::TAlgorithm_Counter3::FastPwm_ToMarkA);
+  *Counter.MarkA = WaveDuration_Ut - 1;
+  *Counter.MarkB = (WaveDuration_Ut - 1) / 2;
 
   return true;
 }
@@ -74,27 +68,36 @@ void me_FrequencyGenerator::StartFreqGen()
 
   TCounter3 Counter;
 
+  Counter.Control->PinActionOnMarkB = (TUint_1) TPinAction::Set;
   Counter.Control->Speed = (TUint_1) TSpeed_Counter3::SlowBy2Pow3;
   *Counter.Current = 0;
 }
 
 void me_FrequencyGenerator::StopFreqGen()
 {
-  const TUint_1 CounterStoppingMargin = 10;
-
   using namespace me_Counters;
 
   TCounter3 Counter;
 
-  // If we're not stopped then wait to complete wave cycle
-  if (Counter.Control->Speed != (TUint_1) TSpeed_Counter3::None)
-  {
-    Counter.Control->PinActionOnMarkB = (TUint_1) TPinAction::Clear;
-    while (*Counter.Current > CounterStoppingMargin);
-  }
+  if (Counter.Control->Speed == (TUint_1) TSpeed_Counter3::None)
+    return;
 
+  /*
+    If we're not stopped then wait to complete wave cycle
+
+    Stopping gracefully is not that simple.
+
+    After setting pin action on mark B to None, pin instantly
+    returns to what value it has before. We want to finish our
+    cycle before releasing it. Our cycle is (LOW HIGH).
+  */
+
+  Counter.Status->GotMarkA = true; // again, cleared by one
+  while (!Counter.Status->GotMarkA);
+
+  // Okay, we're at start of cycle, disconnect pin and power off counter
+  Counter.Control->PinActionOnMarkB = (TUint_1) TPinAction::None;
   Counter.Control->Speed = (TUint_1) TSpeed_Counter3::None;
-  *Counter.Current = 0;
 }
 
 /*
