@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2025-09-14
+  Last mod.: 2025-09-15
 */
 
 /*
@@ -88,7 +88,10 @@ void me_FrequencyGenerator::StopFreqGen()
 
   // If we're not stopped then wait to complete wave cycle
   if (Counter.Control->Speed != (TUint_1) TSpeed_Counter3::None)
+  {
+    Counter.Control->PinActionOnMarkB = (TUint_1) TPinAction::Clear;
     while (*Counter.Current > CounterStoppingMargin);
+  }
 
   Counter.Control->Speed = (TUint_1) TSpeed_Counter3::None;
   *Counter.Current = 0;
@@ -97,4 +100,5 @@ void me_FrequencyGenerator::StopFreqGen()
 /*
   2025-02-21
   2025-09-14
+  2025-09-15
 */
