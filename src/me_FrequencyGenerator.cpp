@@ -2,12 +2,12 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2025-09-15
+  Last mod.: 2025-10-10
 */
 
 /*
-  Here we're using counter 3 in PWM mode.
-  Output is done on pin 3 which is related to that counter.
+  Here we're using counter 1 in PWM mode.
+  Output is done on pin 5 which is related to that counter.
 */
 
 #include <me_FrequencyGenerator.h>
@@ -19,7 +19,7 @@
 
 using namespace me_FrequencyGenerator;
 
-const TUint_1 OutputPinNumber = 3;
+const TUint_1 OutputPinNumber = 5;
 me_Pins::TOutputPin OutputPin;
 
 TBool me_FrequencyGenerator::SetFrequency_Hz(
@@ -40,7 +40,7 @@ TBool me_FrequencyGenerator::SetFrequency_Hz(
   const TUint_4 MaxFreq_Hz = (TUint_4) F_CPU / 8 / 2;
   const TUint_4 MinFreq_Hz = (TUint_4) F_CPU / 8 / 255;
   TUint_1 WaveDuration_Ut;
-  me_Counters::TCounter3 Counter;
+  me_Counters::TCounter1 Counter;
 
   if ((Freq_Hz < MinFreq_Hz) || (Freq_Hz > MaxFreq_Hz))
     return false;
@@ -52,10 +52,10 @@ TBool me_FrequencyGenerator::SetFrequency_Hz(
   if (WaveDuration_Ut < 2)
     return false;
 
-  Counter.Control->Speed = (TUint_1) me_Counters::TSpeed_Counter3::None;
+  Counter.Control->DriveSource = (TUint_1) me_Counters::TDriveSource_Counter1::None;
   Counter.Control->PinActionOnMarkA = (TUint_1) me_Counters::TPinAction::None;
 
-  Counter.SetAlgorithm(me_Counters::TAlgorithm_Counter3::FastPwm_ToMarkA);
+  Counter.SetAlgorithm(me_Counters::TAlgorithm_Counter1::FastPwm_ToMarkA);
   *Counter.MarkA = WaveDuration_Ut - 1;
   *Counter.MarkB = (WaveDuration_Ut - 1) / 2;
 
@@ -66,10 +66,10 @@ void me_FrequencyGenerator::StartFreqGen()
 {
   using namespace me_Counters;
 
-  TCounter3 Counter;
+  TCounter1 Counter;
 
   Counter.Control->PinActionOnMarkB = (TUint_1) TPinAction::Set;
-  Counter.Control->Speed = (TUint_1) TSpeed_Counter3::SlowBy2Pow3;
+  Counter.Control->DriveSource = (TUint_1) TDriveSource_Counter1::Internal_SlowBy2Pow3;
   *Counter.Current = 0;
 }
 
@@ -77,9 +77,9 @@ void me_FrequencyGenerator::StopFreqGen()
 {
   using namespace me_Counters;
 
-  TCounter3 Counter;
+  TCounter1 Counter;
 
-  if (Counter.Control->Speed == (TUint_1) TSpeed_Counter3::None)
+  if (Counter.Control->DriveSource == (TUint_1) TDriveSource_Counter1::None)
     return;
 
   /*
@@ -97,11 +97,12 @@ void me_FrequencyGenerator::StopFreqGen()
 
   // Okay, we're at start of cycle, disconnect pin and power off counter
   Counter.Control->PinActionOnMarkB = (TUint_1) TPinAction::None;
-  Counter.Control->Speed = (TUint_1) TSpeed_Counter3::None;
+  Counter.Control->DriveSource = (TUint_1) TDriveSource_Counter1::None;
 }
 
 /*
   2025-02-21
   2025-09-14
   2025-09-15
+  2025-10-10 Switched to counter 1 (from counter 3)
 */

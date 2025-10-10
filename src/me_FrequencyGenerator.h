@@ -2,14 +2,11 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2025-09-14
+  Last mod.: 2025-10-10
 */
 
 /*
-  Limitations
-
-  Current implementation uses pin 3 for frequency output.
-  It also uses hardware counter 3.
+  Implementation uses counter 1 and pin 5 for frequency output.
 */
 
 #pragma once
