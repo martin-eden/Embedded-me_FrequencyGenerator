@@ -2,11 +2,17 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2025-10-10
+  Last mod.: 2025-10-12
 */
 
 /*
-  Implementation uses counter 1 and pin 5 for frequency output.
+  Implementation limitations
+
+    * Uses counter 1 and pin 5
+    * 50% duty cycle
+    * Accepted frequencies: 8..1000 kHz
+
+  Intended use is 38 kHz wave generation for IR emitter.
 */
 
 #pragma once

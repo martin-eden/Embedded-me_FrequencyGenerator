@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2025-10-10
+  Last mod.: 2025-10-12
 */
 
 /*
@@ -69,8 +69,8 @@ void me_FrequencyGenerator::StartFreqGen()
   TCounter1 Counter;
 
   Counter.Control->PinActionOnMarkB = (TUint_1) TPinAction::Set;
-  Counter.Control->DriveSource = (TUint_1) TDriveSource_Counter1::Internal_SlowBy2Pow3;
   *Counter.Current = 0;
+  Counter.Control->DriveSource = (TUint_1) TDriveSource_Counter1::Internal_SlowBy2Pow3;
 }
 
 void me_FrequencyGenerator::StopFreqGen()
@@ -90,9 +90,14 @@ void me_FrequencyGenerator::StopFreqGen()
     After setting pin action on mark B to None, pin instantly
     returns to what value it has before. We want to finish our
     cycle before releasing it. Our cycle is (LOW HIGH).
+
+    To finish cycle we're waiting for "got mark A" flag.
+    This flag is likely is set now from previous iterations.
+    So we're clearing it first. And clearing in done
+    by writing "true" to it. Yes, "true". Hardware magic!
   */
 
-  Counter.Status->GotMarkA = true; // again, cleared by one
+  Counter.Status->GotMarkA = true;
   while (!Counter.Status->GotMarkA);
 
   // Okay, we're at start of cycle, disconnect pin and power off counter
