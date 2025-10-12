@@ -4,14 +4,15 @@
 
 Frequency generator. ATmega328/P
 
-
 ## Details
+
+![Wave][Wave_40k]
 
 Generates square wave with 50% duty cycle.
 
-Used to generate 38 kHz for infrared emitter.
+Used to generate 40 kHz for infrared emitter.
 
-Implementation uses pin 5 for output (and counter 1).
+Implementation uses pin 6 for output (and counter 1).
 
 Produces perfect timing when frequency is divisor of 2000000.
 
@@ -41,6 +42,8 @@ Easy way is to clone [GetLibs][GetLibs] repo and run it's code.
 * [My other embedded C++ libraries][Embedded]
 * [My other repositories][Repos]
 
+
+[Wave_40k]: extras/40%20kHz.png
 
 [Interface]: src/me_FrequencyGenerator.h
 [Implementation]: src/me_FrequencyGenerator.cpp
