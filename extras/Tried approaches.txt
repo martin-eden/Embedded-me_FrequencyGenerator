@@ -1,0 +1,58 @@
+(
+  Our practical case is emitting IR signal. You can't just output HIGH
+  to IR emitter. LED will light but receiver will give you just one
+  strobe. You need to oscillate emitter.
+
+  It means oscillating pin at some frequency near 38 kHz.
+  In our tests frequencies 26..48 kHz worked fine.
+
+  Exact 38 kHz is not achievable. We ended using 40 kHz for easy testing
+  with oscilloscope.
+
+) 2025-10-12
+
+(
+  Counters modes
+
+  As we understood from datasheet counter is hardware loop running
+  from 0 to N (and maybe from N down to 0).
+
+  When counter passes some value between 0 and N it can change pin.
+  Also it can fire interrupt but we're not using interrupts.
+
+  There are 8-bit and 16-bit counters. Here we'll talk about 8-bit
+  counters.
+
+  Below is our theorycraft for counter modes.
+  Comments mention mode name from datasheet.
+
+  // Normal mode
+  for I = 0, 255
+    ;
+
+  // CTC mode
+  for I = 0, A
+    if (I == B)
+      DoSomethingOnPinB()
+    DoSomethingOnPinA()
+
+  // Fast PWM mode
+  for I = 0, A
+    if (I == B)
+      DoSomethingOnPinB()
+  DoSomethingOnPinA()
+
+  // Phase correct PWM mode
+  for I = 0, A
+    if (I == B)
+      DoSomethingOnPinB()
+  DoSomethingOnPinA()
+  for I = A - 1, 0
+    if (I == B)
+      DoSomethinOnPinB()
+
+  (Observed CTC mode contradicts datasheet. We set counter in CTC mode
+  to count to OCRA and set it to toggle pin. What we observed is pin
+  toggling every clock cycle. No matter what loop limit was.)
+
+) 2025-10-12
