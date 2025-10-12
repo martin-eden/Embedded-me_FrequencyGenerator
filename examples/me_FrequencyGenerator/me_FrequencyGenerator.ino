@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2025-09-14
+  Last mod.: 2025-10-12
 */
 
 #include <me_FrequencyGenerator.h>
@@ -14,17 +14,28 @@
 
 void RunTest()
 {
-  Console.Indent();
-  Console.Print("( Emitting 38 kHz for 10 seconds on pin 3.");
+  const TUint_4 Freq_Hz = 40000;
+  const TUint_2 Duration_Ms = 2;
 
-  if (!me_FrequencyGenerator::SetFrequency_Hz(38000))
+  Console.Print("( Emitting frequency for given time on pin 6.");
+  Console.Indent();
+
+  Console.Write("Frequency (Hz)");
+  Console.Print(Freq_Hz);
+  Console.EndLine();
+
+  Console.Write("Duration (Ms)");
+  Console.Print(Duration_Ms);
+  Console.EndLine();
+
+  if (!me_FrequencyGenerator::SetFrequency_Hz(Freq_Hz))
     Console.Print("Failed to set frequency.");
   me_FrequencyGenerator::StartFreqGen();
-  me_Delays::Delay_S(10);
+  me_Delays::Delay_Ms(Duration_Ms);
   me_FrequencyGenerator::StopFreqGen();
 
-  Console.Print(") Done");
   Console.Unindent();
+  Console.Print(") Done");
 }
 
 void setup()
@@ -32,7 +43,9 @@ void setup()
   Console.Init();
 
   Console.Print("( [me_FrequencyGenerator] test");
+  Console.Indent();
   RunTest();
+  Console.Unindent();
   Console.Print(") Done");
 }
 
@@ -42,4 +55,5 @@ void loop()
 
 /*
   2025-09-14
+  2025-10-12
 */
