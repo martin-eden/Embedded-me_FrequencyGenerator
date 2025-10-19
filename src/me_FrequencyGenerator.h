@@ -2,13 +2,13 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2025-10-12
+  Last mod.: 2025-10-19
 */
 
 /*
   Implementation limitations
 
-    * Uses counter 1 and pin 5
+    * Uses counter 1 and pin 6
     * 50% duty cycle
     * Accepted frequencies: 8..1000 kHz
 
