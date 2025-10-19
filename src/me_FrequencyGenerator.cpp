@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2025-10-12
+  Last mod.: 2025-10-19
 */
 
 /*
@@ -23,7 +23,7 @@
 /*
   Implementation guarantees 50% duty cycle
 
-  It means coarse real frequency but symmetric signal.
+  It means coarser real frequency but symmetric signal.
 */
 
 #include <me_FrequencyGenerator.h>
@@ -32,6 +32,7 @@
 
 #include <me_Counters.h>
 #include <me_Pins.h>
+#include <me_HardwareClockScaling.h>
 
 using namespace me_FrequencyGenerator;
 
@@ -53,27 +54,40 @@ TBool me_FrequencyGenerator::SetFrequency_Hz(
     It's like floating point numbers: more magnitude - less precision.
   */
 
-  const TUint_4 Clock_Hz = F_CPU / 8;
-  const TUint_4 MaxFreq_Hz = Clock_Hz / 2;
-  const TUint_4 MinFreq_Hz = Clock_Hz / 255;
-  TUint_1 HalfWaveDuration_Ut;
-  me_Counters::TCounter1 Counter;
+  const TUint_4 MaxFreq_Hz = TUint_4_Max / 2;
 
-  if ((Freq_Hz < MinFreq_Hz) || (Freq_Hz > MaxFreq_Hz))
+  TUint_4 HalfWaveFreq_Hz;
+  TBool IsOk;
+  me_Counters::TCounter1 Counter;
+  me_HardwareClockScaling::TClockScalingOptions ScalingOpts;
+  me_HardwareClockScaling::TClockScale ClockScale;
+
+  if (Freq_Hz > MaxFreq_Hz)
+    return false;
+
+  HalfWaveFreq_Hz = 2 * Freq_Hz;
+
+  ScalingOpts.NumPrescalerValues = 1;
+  ScalingOpts.Prescales_PowOfTwo[0] = 3;
+  ScalingOpts.CounterNumBits = 8;
+
+  IsOk =
+    me_HardwareClockScaling::CalculateClockScale(
+      &ClockScale,
+      HalfWaveFreq_Hz,
+      ScalingOpts
+    );
+
+  if (!IsOk)
     return false;
 
   OutputPin.Init(OutputPinNumber);
   OutputPin.Write(0);
 
-  HalfWaveDuration_Ut = (TUint_4) Clock_Hz / Freq_Hz / 2;
-
-  if (HalfWaveDuration_Ut < 1)
-    return false;
-
   Counter.Control->DriveSource = (TUint_1) me_Counters::TDriveSource_Counter1::None;
 
   Counter.SetAlgorithm(me_Counters::TAlgorithm_Counter1::FastPwm_ToMarkA);
-  *Counter.MarkA = HalfWaveDuration_Ut - 1;
+  *Counter.MarkA = ClockScale.CounterLimit;
 
   *Counter.Current = 0;
 
@@ -128,4 +142,5 @@ void me_FrequencyGenerator::StopFreqGen()
   2025-09-15
   2025-10-10 Switched to counter 1 (from counter 3)
   2025-10-12
+  2025-10-19
 */
