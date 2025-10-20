@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2025-10-12
+  Last mod.: 2025-10-20
 */
 
 #include <me_FrequencyGenerator.h>
@@ -14,8 +14,8 @@
 
 void RunTest()
 {
-  const TUint_4 Freq_Hz = 40000;
-  const TUint_2 Duration_Ms = 2;
+  const TUint_4 Freq_Hz = 10000;
+  const TUint_2 TestDuration_Ms = 2;
 
   Console.Print("( Emitting frequency for given time on pin 6.");
   Console.Indent();
@@ -24,14 +24,14 @@ void RunTest()
   Console.Print(Freq_Hz);
   Console.EndLine();
 
-  Console.Write("Duration (Ms)");
-  Console.Print(Duration_Ms);
+  Console.Write("Test duration (Ms)");
+  Console.Print(TestDuration_Ms);
   Console.EndLine();
 
   if (!me_FrequencyGenerator::SetFrequency_Hz(Freq_Hz))
     Console.Print("Failed to set frequency.");
   me_FrequencyGenerator::StartFreqGen();
-  me_Delays::Delay_Ms(Duration_Ms);
+  me_Delays::Delay_Ms(TestDuration_Ms);
   me_FrequencyGenerator::StopFreqGen();
 
   Console.Unindent();
