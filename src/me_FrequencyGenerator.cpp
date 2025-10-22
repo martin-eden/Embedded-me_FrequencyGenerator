@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2025-10-19
+  Last mod.: 2025-10-22
 */
 
 /*
@@ -36,9 +36,6 @@
 
 using namespace me_FrequencyGenerator;
 
-const TUint_1 OutputPinNumber = 6;
-me_Pins::TOutputPin OutputPin;
-
 TBool me_FrequencyGenerator::SetFrequency_Hz(
   TUint_4 Freq_Hz
 )
@@ -56,10 +53,15 @@ TBool me_FrequencyGenerator::SetFrequency_Hz(
 
   const TUint_4 MaxFreq_Hz = TUint_4_Max / 2;
 
+  const me_HardwareClockScaling::TClockScaleSetting
+    ScaleSpec =
+      {
+        .Prescale_PowOfTwo = 3,
+        .CounterNumBits = 8,
+      };
+
   TUint_4 HalfWaveFreq_Hz;
-  TBool IsOk;
   me_Counters::TCounter1 Counter;
-  me_HardwareClockScaling::TClockScalingOptions ScalingOpts;
   me_HardwareClockScaling::TClockScale ClockScale;
 
   if (Freq_Hz > MaxFreq_Hz)
@@ -67,22 +69,20 @@ TBool me_FrequencyGenerator::SetFrequency_Hz(
 
   HalfWaveFreq_Hz = 2 * Freq_Hz;
 
-  ScalingOpts.NumPrescalerValues = 1;
-  ScalingOpts.Prescales_PowOfTwo[0] = 3;
-  ScalingOpts.CounterNumBits = 8;
-
-  IsOk =
-    me_HardwareClockScaling::CalculateClockScale(
-      &ClockScale,
-      HalfWaveFreq_Hz,
-      ScalingOpts
-    );
-
-  if (!IsOk)
+  if (
+    !me_HardwareClockScaling::CalculateClockScale_Spec(
+      &ClockScale, HalfWaveFreq_Hz, ScaleSpec
+    )
+  )
     return false;
 
-  OutputPin.Init(OutputPinNumber);
-  OutputPin.Write(0);
+  {
+    const TUint_1 OutputPinNumber = 6;
+    me_Pins::TOutputPin OutputPin;
+
+    OutputPin.Init(OutputPinNumber);
+    OutputPin.Write(0);
+  }
 
   Counter.Control->DriveSource = (TUint_1) me_Counters::TDriveSource_Counter1::None;
 
@@ -124,7 +124,7 @@ void me_FrequencyGenerator::StopFreqGen()
 
     To finish wave we're waiting for "got mark A" flag.
     This flag is likely set now from previous iterations.
-    So we're clearing it first. And clearing in done
+    So we're clearing it first. And clearing is done
     by writing "true" to it. Yes, "true". Hardware magic!
   */
 
