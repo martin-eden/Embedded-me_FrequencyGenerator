@@ -128,6 +128,8 @@ void me_FrequencyGenerator::StopFreqGen()
     by writing "true" to it. Yes, "true". Hardware magic!
   */
 
+  Counter.Control->PinActionOnMarkA = (TUint_1) TPinAction::Set;
+
   Counter.Status->GotMarkA = true;
   while (!Counter.Status->GotMarkA);
 
