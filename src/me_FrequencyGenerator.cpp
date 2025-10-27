@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2025-10-22
+  Last mod.: 2025-10-27
 */
 
 /*
@@ -128,7 +128,7 @@ void me_FrequencyGenerator::StopFreqGen()
     by writing "true" to it. Yes, "true". Hardware magic!
   */
 
-  Counter.Control->PinActionOnMarkA = (TUint_1) TPinAction::Set;
+  Counter.Control->PinActionOnMarkA = (TUint_1) TPinAction::Clear;
 
   Counter.Status->GotMarkA = true;
   while (!Counter.Status->GotMarkA);
