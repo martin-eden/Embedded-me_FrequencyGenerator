@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2025-10-27
+  Last mod.: 2025-10-29
 */
 
 /*
@@ -91,6 +91,16 @@ TBool me_FrequencyGenerator::SetFrequency_Hz(
 
   *Counter.Current = 0;
 
+  /*
+    Specially for Arduino
+
+    Disable Arduino's timer interrupt.
+
+    Arduino uses counter 1 as timer. We're using counter 1 as frequency
+    generator. It can tick real fast.
+  */
+  Counter.Interrupts->OnDone = false;
+
   return true;
 }
 
@@ -145,4 +155,5 @@ void me_FrequencyGenerator::StopFreqGen()
   2025-10-10 Switched to counter 1 (from counter 3)
   2025-10-12
   2025-10-19
+  2025-10-29
 */
