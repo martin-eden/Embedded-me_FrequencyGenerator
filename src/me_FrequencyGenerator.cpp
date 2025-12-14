@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2025-10-29
+  Last mod.: 2025-12-14
 */
 
 /*
@@ -62,7 +62,7 @@ TBool me_FrequencyGenerator::SetFrequency_Hz(
 
   TUint_4 HalfWaveFreq_Hz;
   me_Counters::TCounter1 Counter;
-  me_HardwareClockScaling::TClockScale ClockScale;
+  me_HardwareClockScaling::THardwareDuration ClockScale;
 
   if (Freq_Hz > MaxFreq_Hz)
     return false;
