@@ -87,7 +87,7 @@ TBool me_FrequencyGenerator::SetFrequency_Hz(
   Counter.Control->DriveSource = (TUint_1) me_Counters::TDriveSource_Counter1::None;
 
   Counter.SetAlgorithm(me_Counters::TAlgorithm_Counter1::FastPwm_ToMarkA);
-  *Counter.MarkA = ClockScale.CounterLimit;
+  *Counter.MarkA = ClockScale.Scale_BaseOne;
 
   *Counter.Current = 0;
 
