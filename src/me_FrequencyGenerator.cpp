@@ -26,6 +26,16 @@
   It means coarser real frequency but symmetric signal.
 */
 
+/*
+  We're using counter 1 for pin toggling at fixed time interval
+
+  [me_HardwareClockScaling] was written for us by us.
+  Now it wants to provide simple interface for wavelength-from-freq
+  calculation for known hardware stuff. It is not implemented yet
+  and at this moment we prefer to keep our custom settings
+  for speed calculation.
+*/
+
 #include <me_FrequencyGenerator.h>
 
 #include <me_BaseTypes.h>
