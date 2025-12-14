@@ -53,16 +53,12 @@ TBool me_FrequencyGenerator::SetFrequency_Hz(
 
   const TUint_4 MaxFreq_Hz = TUint_4_Max / 2;
 
-  const me_HardwareClockScaling::TClockScaleSetting
-    ScaleSpec =
-      {
-        .Prescale_PowOfTwo = 3,
-        .ScaleSize_NumBits = 8,
-      };
+  const TUint_1 Spec_Prescale_PowOfTwo = 3;
+  const TUint_1 Spec_ScaleSize_NumBits = 8;
 
   TUint_4 HalfWaveFreq_Hz;
   me_Counters::TCounter1 Counter;
-  me_HardwareClockScaling::THardwareDuration ClockScale;
+  me_HardwareClockScaling::THardwareDuration HwDur;
 
   if (Freq_Hz > MaxFreq_Hz)
     return false;
@@ -70,8 +66,8 @@ TBool me_FrequencyGenerator::SetFrequency_Hz(
   HalfWaveFreq_Hz = 2 * Freq_Hz;
 
   if (
-    !me_HardwareClockScaling::CalculateClockScale_Spec(
-      &ClockScale, HalfWaveFreq_Hz, ScaleSpec
+    !me_HardwareClockScaling::CalculateHardwareDuration(
+      &HwDur, HalfWaveFreq_Hz, Spec_Prescale_PowOfTwo, Spec_ScaleSize_NumBits
     )
   )
     return false;
@@ -87,7 +83,7 @@ TBool me_FrequencyGenerator::SetFrequency_Hz(
   Counter.Control->DriveSource = (TUint_1) me_Counters::TDriveSource_Counter1::None;
 
   Counter.SetAlgorithm(me_Counters::TAlgorithm_Counter1::FastPwm_ToMarkA);
-  *Counter.MarkA = ClockScale.Scale_BaseOne;
+  *Counter.MarkA = HwDur.Scale_BaseOne;
 
   *Counter.Current = 0;
 
