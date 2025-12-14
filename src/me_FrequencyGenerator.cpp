@@ -57,7 +57,7 @@ TBool me_FrequencyGenerator::SetFrequency_Hz(
     ScaleSpec =
       {
         .Prescale_PowOfTwo = 3,
-        .CounterNumBits = 8,
+        .ScaleSize_NumBits = 8,
       };
 
   TUint_4 HalfWaveFreq_Hz;
