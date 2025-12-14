@@ -2,11 +2,17 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2025-10-19
+  Last mod.: 2025-12-14
 */
 
 /*
-  Implementation limitations
+  Scope
+
+  Module provides on/off interface for square wave generation.
+*/
+
+/*
+  Implementation specifications
 
     * Uses counter 1 and pin 6
     * 50% duty cycle
