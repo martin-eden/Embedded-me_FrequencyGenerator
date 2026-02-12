@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2025-12-14
+  Last mod.: 2026-02-12
 */
 
 /*
@@ -67,7 +67,7 @@ TBool me_FrequencyGenerator::SetFrequency_Hz(
   const TUint_1 Spec_ScaleSize_NumBits = 8;
 
   TUint_4 HalfWaveFreq_Hz;
-  me_Counters::TCounter1 Counter;
+  me_Counters::Counter1::TCounter Counter;
   me_HardwareClockScaling::THardwareDuration HwDur;
 
   if (Freq_Hz > MaxFreq_Hz)
@@ -90,9 +90,9 @@ TBool me_FrequencyGenerator::SetFrequency_Hz(
     OutputPin.Write(0);
   }
 
-  Counter.Control->DriveSource = (TUint_1) me_Counters::TDriveSource_Counter1::None;
+  Counter.Control->DriveSource = (TUint_1) me_Counters::Counter1::TDriveSource::None;
 
-  Counter.SetAlgorithm(me_Counters::TAlgorithm_Counter1::FastPwm_ToMarkA);
+  Counter.SetAlgorithm(me_Counters::Counter1::TAlgorithm::FastPwm_ToMarkA);
   *Counter.MarkA = HwDur.Scale_BaseOne;
 
   *Counter.Current = 0;
@@ -112,21 +112,21 @@ TBool me_FrequencyGenerator::SetFrequency_Hz(
 
 void me_FrequencyGenerator::StartFreqGen()
 {
-  using namespace me_Counters;
+  using namespace me_Counters::Counter1;
 
-  TCounter1 Counter;
+  TCounter Counter;
 
-  Counter.Control->DriveSource = (TUint_1) TDriveSource_Counter1::Internal_SlowBy2Pow3;
+  Counter.Control->DriveSource = (TUint_1) TDriveSource::Internal_SlowBy2Pow3;
   Counter.Control->PinActionOnMarkA = (TUint_1) me_Counters::TPinAction::Toggle;
 }
 
 void me_FrequencyGenerator::StopFreqGen()
 {
-  using namespace me_Counters;
+  using namespace me_Counters::Counter1;
 
-  TCounter1 Counter;
+  TCounter Counter;
 
-  if (Counter.Control->DriveSource == (TUint_1) TDriveSource_Counter1::None)
+  if (Counter.Control->DriveSource == (TUint_1) TDriveSource::None)
     return;
 
   /*
@@ -144,14 +144,14 @@ void me_FrequencyGenerator::StopFreqGen()
     by writing "true" to it. Yes, "true". Hardware magic!
   */
 
-  Counter.Control->PinActionOnMarkA = (TUint_1) TPinAction::Clear;
+  Counter.Control->PinActionOnMarkA = (TUint_1) me_Counters::TPinAction::Clear;
 
   Counter.Status->GotMarkA = true;
   while (!Counter.Status->GotMarkA);
 
   // Okay, we're at start of cycle, disconnect pin and power off counter
-  Counter.Control->PinActionOnMarkA = (TUint_1) TPinAction::None;
-  Counter.Control->DriveSource = (TUint_1) TDriveSource_Counter1::None;
+  Counter.Control->PinActionOnMarkA = (TUint_1) me_Counters::TPinAction::None;
+  Counter.Control->DriveSource = (TUint_1) TDriveSource::None;
 }
 
 /*
