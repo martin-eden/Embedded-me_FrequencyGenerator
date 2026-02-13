@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2025-10-20
+  Last mod.: 2026-02-13
 */
 
 #include <me_FrequencyGenerator.h>
@@ -17,7 +17,7 @@ void RunTest()
   const TUint_4 Freq_Hz = 10000;
   const TUint_2 TestDuration_Ms = 2;
 
-  Console.Print("( Emitting frequency for given time on pin 6.");
+  Console.Print("( Emitting frequency for given time on pin 5");
   Console.Indent();
 
   Console.Write("Frequency (Hz)");

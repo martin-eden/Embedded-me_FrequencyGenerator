@@ -12,7 +12,7 @@ Generates square wave with 50% duty cycle.
 
 Used to generate 40 kHz for infrared emitter.
 
-Implementation uses pin 6 for output (and counter 1).
+Implementation uses pin 5 for output (and counter 1).
 
 Produces perfect timing when frequency is divisor of 2000000.
 

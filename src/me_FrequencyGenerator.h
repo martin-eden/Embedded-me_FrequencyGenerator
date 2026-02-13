@@ -1,21 +1,24 @@
-// Frequency generator interface
+// On/off interface for square wave generation
 
 /*
   Author: Martin Eden
-  Last mod.: 2025-12-14
+  Last mod.: 2026-02-13
 */
 
 /*
-  Scope
+  Guarantees
 
-  Module provides on/off interface for square wave generation.
-*/
-
-/*
-  Implementation specifications
-
-    * Uses counter 1 and pin 6
     * 50% duty cycle
+
+    * Wave period temporal granularity
+
+      You can rely that HIGH period won't be cut.
+*/
+
+/*
+  Implementation specs
+
+    * Uses counter 1 and pin 5
     * Accepted frequencies: 8..1000 kHz
 
   Intended use is 38 kHz wave generation for IR emitter.

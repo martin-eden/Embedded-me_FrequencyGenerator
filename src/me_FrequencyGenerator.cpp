@@ -2,38 +2,15 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2026-02-12
+  Last mod.: 2026-02-13
 */
 
 /*
-  Here we're using counter 1 in PWM mode.
-  Output is done on pin 5 which is related to that counter.
-*/
+  Implementation details
 
-/*
-  Initial and final signal is LOW
-
-  Implementation guarantees half-wave temporal granularity.
-  You can rely that HIGH period won't be cut.
-
-  Possible wave forms: "__~~__~~_" and "__~~__~~___".
-  Because we don't know signal state at finishing.
-*/
-
-/*
-  Implementation guarantees 50% duty cycle
-
-  It means coarser real frequency but symmetric signal.
-*/
-
-/*
-  We're using counter 1 for pin toggling at fixed time interval
-
-  [me_HardwareClockScaling] was written for us by us.
-  Now it wants to provide simple interface for wavelength-from-freq
-  calculation for known hardware stuff. It is not implemented yet
-  and at this moment we prefer to keep our custom settings
-  for speed calculation.
+  * We're using counter 1 in single-slope PWM mode
+  * Output is done on pin 5
+  * Initial and final signal is LOW
 */
 
 #include <me_FrequencyGenerator.h>
@@ -61,29 +38,35 @@ TBool me_FrequencyGenerator::SetFrequency_Hz(
     It's like floating point numbers: more magnitude - less precision.
   */
 
-  const TUint_4 MaxFreq_Hz = TUint_4_Max / 2;
-
   const TUint_1 Spec_Prescale_PowOfTwo = 3;
   const TUint_1 Spec_ScaleSize_NumBits = 8;
 
-  TUint_4 HalfWaveFreq_Hz;
   me_Counters::Counter1::TCounter Counter;
   me_HardwareClockScaling::THardwareDuration HwDur;
 
-  if (Freq_Hz > MaxFreq_Hz)
-    return false;
-
-  HalfWaveFreq_Hz = 2 * Freq_Hz;
-
   if (
     !me_HardwareClockScaling::CalculateHardwareDuration(
-      &HwDur, HalfWaveFreq_Hz, Spec_Prescale_PowOfTwo, Spec_ScaleSize_NumBits
+      &HwDur, Freq_Hz, Spec_Prescale_PowOfTwo, Spec_ScaleSize_NumBits
     )
   )
     return false;
 
+  /*
+    Post-process hardware duration
+
+    <.Scale_BaseOne> field contains number of cycles to slow.
+    It's stored biased by one: zero means one cycle, one means two etc.
+
+    This value is duration of LOW-HIGH period. We want middle setpoint
+    in that period where we switch pin.
+
+    We made promise of 50% duty cycle. That means that period duration
+    must be even. Considering bias it means we want odd duration.
+  */
+  HwDur.Scale_BaseOne |= 1;
+
   {
-    const TUint_1 OutputPinNumber = 6;
+    const TUint_1 OutputPinNumber = 5;
     me_Pins::TOutputPin OutputPin;
 
     OutputPin.Init(OutputPinNumber);
@@ -94,6 +77,7 @@ TBool me_FrequencyGenerator::SetFrequency_Hz(
 
   Counter.SetAlgorithm(me_Counters::Counter1::TAlgorithm::FastPwm_ToMarkA);
   *Counter.MarkA = HwDur.Scale_BaseOne;
+  *Counter.MarkB = (HwDur.Scale_BaseOne >> 1);
 
   *Counter.Current = 0;
 
@@ -116,8 +100,8 @@ void me_FrequencyGenerator::StartFreqGen()
 
   TCounter Counter;
 
+  Counter.Control->PinActionOnMarkB = (TUint_1) me_Counters::TPinAction::Clear;
   Counter.Control->DriveSource = (TUint_1) TDriveSource::Internal_SlowBy2Pow3;
-  Counter.Control->PinActionOnMarkA = (TUint_1) me_Counters::TPinAction::Toggle;
 }
 
 void me_FrequencyGenerator::StopFreqGen()
@@ -144,22 +128,15 @@ void me_FrequencyGenerator::StopFreqGen()
     by writing "true" to it. Yes, "true". Hardware magic!
   */
 
-  Counter.Control->PinActionOnMarkA = (TUint_1) me_Counters::TPinAction::Clear;
-
   Counter.Status->GotMarkA = true;
   while (!Counter.Status->GotMarkA);
 
   // Okay, we're at start of cycle, disconnect pin and power off counter
-  Counter.Control->PinActionOnMarkA = (TUint_1) me_Counters::TPinAction::None;
+  Counter.Control->PinActionOnMarkB = (TUint_1) me_Counters::TPinAction::None;
   Counter.Control->DriveSource = (TUint_1) TDriveSource::None;
 }
 
 /*
-  2025-02-21
-  2025-09-14
-  2025-09-15
-  2025-10-10 Switched to counter 1 (from counter 3)
-  2025-10-12
-  2025-10-19
-  2025-10-29
+  2025 # # # # # # #
+  2026-02-13
 */
