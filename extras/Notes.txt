@@ -1,0 +1,53 @@
+(
+  Our practical case is emitting IR signal. You can't just output HIGH
+  to IR emitter. LED will light but receiver will give you just one
+  strobe. You need to oscillate emitter.
+
+  It means oscillating pin at some frequency near 38 kHz.
+  In our tests frequencies 26..48 kHz worked fine.
+
+  Exact 38 kHz is not achievable. We ended using 40 kHz for easy testing
+  with oscilloscope.
+
+) 2025-10-12
+
+(
+  Counter modes
+
+  As we understood from datasheet counter is hardware loop running
+  from 0 to N (and maybe from N down to 0).
+
+  When counter passes some value between 0 and N it can change pin.
+  Also it can fire interrupt but we're not using interrupts.
+
+  There are 8-bit and 16-bit counters. Here we'll talk about 8-bit
+  counters.
+
+  Datasheet mentions hell a lot of counting modes.
+
+  According to our experiments so far there is just two basic modes:
+  single-slope and double-slope:
+
+    // Single slope (Normal, CTC, FastPWM)
+    for I = 0, N
+      if (I == A)
+        Action_A()
+      if (I == B)
+        Action_B()
+
+    // Double-slope (PWM, SymPWM? PhaseCorrectPWM??)
+    for I = 0, N
+      if (I == A)
+        Action_A_Uphill()
+      if (I == B)
+        Action_B_Uphill()
+    for I = N - 1, 0, -1
+      if (I == A)
+        Action_A_Downhill()
+      if (I == B)
+        Action_B_Downhill()
+
+  Details differ and there are senseless settings and glitches for them
+  but this code is general idea.
+
+) 2025-10-12, 2026-02-13
